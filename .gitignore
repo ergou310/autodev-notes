@@ -1,0 +1,59 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+mvnw
+mvnw.cmd
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+.eggs/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Data
+*.db
+*.sqlite
+*.sqlite3

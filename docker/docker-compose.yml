@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: autodev-postgres
+    environment:
+      POSTGRES_DB: autodev_notes
+      POSTGRES_USER: autodev
+      POSTGRES_PASSWORD: autodev123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - autodev-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: autodev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - autodev-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: autodev-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: autodev
+      RABBITMQ_DEFAULT_PASS: autodev123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - autodev-network
+
+  # MinIO (对象存储)
+  minio:
+    image: minio/minio:latest
+    container_name: autodev-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: autodev
+      MINIO_ROOT_PASSWORD: autodev123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - autodev-network
+
+  # Neo4j (知识图谱)
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: autodev-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/autodev123
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - autodev-network
+
+  # Elasticsearch
+  elasticsearch:
+    image: elasticsearch:8.11.1
+    container_name: autodev-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - autodev-network
+
+  # Nacos (服务注册中心)
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    container_name: autodev-nacos
+    environment:
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=postgresql
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=nacos
+      - POSTGRES_USER=autodev
+      - POSTGRES_PASSWORD=autodev123
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    depends_on:
+      - postgres
+    networks:
+      - autodev-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+  neo4j_data:
+  es_data:
+
+networks:
+  autodev-network:
+    driver: bridge
