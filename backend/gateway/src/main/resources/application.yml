@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      # 路由规则
+      routes:
+        # 用户服务
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=0
+
+        # 课程服务
+        - id: course-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/course/**,/api/enroll/**
+          filters:
+            - StripPrefix=0
+
+        # 笔记服务
+        - id: note-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/note/**,/api/file/**
+          filters:
+            - StripPrefix=0
+
+        # AI网关
+        - id: ai-gateway
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=0
+
+      # 全局跨域
+      globalcors:
+        cors-configurations:
+          "[/**]":
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+
+sa-token:
+  token-name: Authorization
+  timeout: 86400
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+    com.autodev: debug
