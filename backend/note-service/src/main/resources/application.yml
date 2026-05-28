@@ -1,0 +1,42 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: note-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autodev_notes
+    username: autodev
+    password: autodev123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# MinIO 配置
+minio:
+  endpoint: http://localhost:9000
+  access-key: autodev
+  secret-key: autodev123
+  bucket: autodev-notes
+
+sa-token:
+  token-name: Authorization
+  timeout: 86400
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+logging:
+  level:
+    com.autodev: debug
