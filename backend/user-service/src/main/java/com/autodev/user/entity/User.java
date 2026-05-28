@@ -2,48 +2,56 @@ package com.autodev.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(unique = true)
+    @Column(length = 100)
     private String email;
 
-    @Column(unique = true)
+    @Column(length = 20)
     private String phone;
 
-    private String nickname;
-
-    private String avatar;
+    @Column(length = 50)
+    private String realName;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(nullable = false)
+    private Role role = Role.STUDENT;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(length = 500)
+    private String avatar;
+
+    @Column(nullable = false)
+    private Boolean enabled = true;
+
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public enum Role {
         STUDENT, TEACHER, ADMIN

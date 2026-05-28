@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autodev_notes
+    username: autodev
+    password: autodev123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  # Sa-Token 使用内存存储（开发环境）
+  # 生产环境建议切换为 Redis
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 86400          # token 有效期（秒）24小时
+  active-timeout: -1      # 临时有效期（-1 永不过期）
+  is-concurrent: true     # 是否允许同一账号并发登录
+  is-share: true          # 多次登录是否共享 token
+  token-style: uuid       # token 风格
+  is-log: false           # 是否输出操作日志
+
+# 日志配置
+logging:
+  level:
+    com.autodev: debug
+    org.springframework.web: info
