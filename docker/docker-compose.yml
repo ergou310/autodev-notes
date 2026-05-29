@@ -42,7 +42,7 @@ services:
     networks:
       - autodev-network
 
-  # MinIO (对象存储)
+  # MinIO (object storage)
   minio:
     image: minio/minio:latest
     container_name: autodev-minio
@@ -58,7 +58,7 @@ services:
     networks:
       - autodev-network
 
-  # Neo4j (知识图谱)
+  # Neo4j (knowledge graph)
   neo4j:
     image: neo4j:5.15-community
     container_name: autodev-neo4j
@@ -87,7 +87,7 @@ services:
     networks:
       - autodev-network
 
-  # Nacos (服务注册中心)
+  # Nacos (service registry)
   nacos:
     image: nacos/nacos-server:v2.2.3
     container_name: autodev-nacos
@@ -103,6 +103,162 @@ services:
       - "9848:9848"
     depends_on:
       - postgres
+    networks:
+      - autodev-network
+
+  # ==========================================
+  # Application Services
+  # ==========================================
+
+  # --- Backend Java Services ---
+
+  gateway:
+    build:
+      context: ../backend/gateway
+      dockerfile: Dockerfile
+    container_name: autodev-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - nacos
+      - redis
+    networks:
+      - autodev-network
+
+  user-service:
+    build:
+      context: ../backend/user-service
+      dockerfile: Dockerfile
+    container_name: autodev-user-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres
+      - nacos
+      - redis
+    networks:
+      - autodev-network
+
+  course-service:
+    build:
+      context: ../backend/course-service
+      dockerfile: Dockerfile
+    container_name: autodev-course-service
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres
+      - nacos
+    networks:
+      - autodev-network
+
+  note-service:
+    build:
+      context: ../backend/note-service
+      dockerfile: Dockerfile
+    container_name: autodev-note-service
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgres
+      - nacos
+      - minio
+    networks:
+      - autodev-network
+
+  ai-gateway:
+    build:
+      context: ../backend/ai-gateway
+      dockerfile: Dockerfile
+    container_name: autodev-ai-gateway
+    ports:
+      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - nacos
+      - rabbitmq
+    networks:
+      - autodev-network
+
+  # --- AI Python Services ---
+
+  note-generator:
+    build:
+      context: ../ai-service
+      dockerfile: note-generator/Dockerfile
+    container_name: autodev-note-generator
+    ports:
+      - "8091:8000"
+    environment:
+      - AI_SERVICE_TYPE=note-generator
+    depends_on:
+      - rabbitmq
+    networks:
+      - autodev-network
+
+  rag-service:
+    build:
+      context: ../ai-service
+      dockerfile: rag-service/Dockerfile
+    container_name: autodev-rag-service
+    ports:
+      - "8092:8000"
+    environment:
+      - AI_SERVICE_TYPE=rag
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    networks:
+      - autodev-network
+
+  analysis-service:
+    build:
+      context: ../ai-service
+      dockerfile: analysis-service/Dockerfile
+    container_name: autodev-analysis-service
+    ports:
+      - "8093:8000"
+    environment:
+      - AI_SERVICE_TYPE=analysis
+    depends_on:
+      - rabbitmq
+    networks:
+      - autodev-network
+
+  grading-service:
+    build:
+      context: ../ai-service
+      dockerfile: grading-service/Dockerfile
+    container_name: autodev-grading-service
+    ports:
+      - "8094:8000"
+    environment:
+      - AI_SERVICE_TYPE=grading
+    depends_on:
+      - rabbitmq
+    networks:
+      - autodev-network
+
+  # --- Frontend ---
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: autodev-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
     networks:
       - autodev-network
 
